@@ -360,7 +360,9 @@
 
   let coneY = -120;
   let cones = [];
-  let baseSpeed = 4.6;
+
+  // Slower speed for pupils to read the cones comfortably
+  let baseSpeed = 2.7;
   let coneSpeed = baseSpeed;
 
   let playerProgress = 0;
@@ -506,8 +508,11 @@
     playerTargetX = playerX;
     playerProgress = 0;
     rivalProgress = [0,0,0];
-    baseSpeed = 4.6;
+
+    // Slower reset speed
+    baseSpeed = 2.7;
     coneSpeed = baseSpeed;
+
     raceFinished = false;
     gameRunning = true;
 
@@ -543,7 +548,10 @@
     }));
 
     coneY = -80;
-    coneSpeed = baseSpeed + score * 0.10;
+
+    // Gentler speed boost after correct answers
+    coneSpeed = baseSpeed + score * 0.04;
+
     updateTop();
   }
 
@@ -633,7 +641,7 @@
         score++;
         playerProgress += 1.15;
         rivalProgress = rivalProgress.map(v => v + Math.random() * 0.55);
-        baseSpeed += 0.18;
+        baseSpeed += 0.07;
         showFeedback("✅ Correct! Speed boost!", true);
         beep("correct");
       }else{
@@ -988,4 +996,4 @@
 })();
 </script>
 </body>
-  </html>
+</html>
