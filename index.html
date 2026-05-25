@@ -57,7 +57,7 @@
   }
 
   header{
-    height:104px;
+    height:112px;
     padding:8px 10px 6px;
     background:linear-gradient(180deg,#ffffff,#dbeafe);
     border-bottom:3px solid #0f172a;
@@ -93,15 +93,22 @@
 
   .question{
     text-align:center;
-    margin-top:5px;
-    font-size:clamp(20px,6vw,30px);
+    margin:6px auto 0;
+    font-size:clamp(22px,6.5vw,34px);
     font-weight:900;
-    color:#991b1b;
+    color:#7f1d1d;
+    background:#fff7ed;
+    border:3px solid #b91c1c;
+    border-radius:16px;
+    padding:3px 10px;
+    width:fit-content;
+    min-width:180px;
+    box-shadow:0 4px 0 #fecaca;
   }
 
   #gameCanvas{
     width:100%;
-    height:calc(100% - 214px);
+    height:calc(100% - 222px);
     display:block;
     background:#86efac;
   }
@@ -218,7 +225,7 @@
   .feedback{
     position:absolute;
     left:50%;
-    top:122px;
+    top:130px;
     transform:translateX(-50%);
     z-index:7;
     background:#fff;
@@ -240,9 +247,9 @@
   }
 
   @media (max-height:680px){
-    header{height:92px;}
+    header{height:100px;}
     .controls{height:96px;}
-    #gameCanvas{height:calc(100% - 188px);}
+    #gameCanvas{height:calc(100% - 196px);}
     .question{font-size:22px;}
   }
 </style>
@@ -361,8 +368,7 @@
   let coneY = -120;
   let cones = [];
 
-  // Slower speed for pupils to read the cones comfortably
-  let baseSpeed = 2.7;
+  let baseSpeed = 2.1;
   let coneSpeed = baseSpeed;
 
   let playerProgress = 0;
@@ -509,8 +515,7 @@
     playerProgress = 0;
     rivalProgress = [0,0,0];
 
-    // Slower reset speed
-    baseSpeed = 2.7;
+    baseSpeed = 2.1;
     coneSpeed = baseSpeed;
 
     raceFinished = false;
@@ -548,9 +553,7 @@
     }));
 
     coneY = -80;
-
-    // Gentler speed boost after correct answers
-    coneSpeed = baseSpeed + score * 0.04;
+    coneSpeed = baseSpeed + score * 0.025;
 
     updateTop();
   }
@@ -641,7 +644,7 @@
         score++;
         playerProgress += 1.15;
         rivalProgress = rivalProgress.map(v => v + Math.random() * 0.55);
-        baseSpeed += 0.07;
+        baseSpeed += 0.035;
         showFeedback("✅ Correct! Speed boost!", true);
         beep("correct");
       }else{
@@ -802,25 +805,32 @@
 
       ctx.fillStyle = "#fb923c";
       ctx.beginPath();
-      ctx.moveTo(0,-30);
-      ctx.lineTo(-28,28);
-      ctx.lineTo(28,28);
+      ctx.moveTo(0,-34);
+      ctx.lineTo(-31,31);
+      ctx.lineTo(31,31);
       ctx.closePath();
       ctx.fill();
 
       ctx.fillStyle = "#fff";
-      ctx.fillRect(-18,-2,36,8);
-      ctx.fillRect(-24,18,48,8);
+      ctx.fillRect(-20,-5,40,8);
+      ctx.fillRect(-25,20,50,8);
 
       ctx.strokeStyle = "#9a3412";
       ctx.lineWidth = 3;
       ctx.stroke();
 
+      ctx.fillStyle = "#ffffff";
+      ctx.strokeStyle = "#111827";
+      ctx.lineWidth = 3;
+      roundRect(ctx,-27,-18,54,34,10);
+      ctx.fill();
+      ctx.stroke();
+
       ctx.fillStyle = "#111827";
-      ctx.font = "bold 22px Comic Sans MS";
+      ctx.font = "bold 25px Comic Sans MS";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      ctx.fillText(c.value,0,4);
+      ctx.fillText(c.value,0,0);
 
       ctx.restore();
     });
