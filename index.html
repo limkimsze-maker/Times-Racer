@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Multiplication Racing Dash</title>
+
+<style>
+  :root{
+    --bg1:#7dd3fc;
+    --bg2:#bae6fd;
+    --road:#3f3f46;
+    --road2:#52525b;
+    --yellow:#fde047;
+    --green:#22c55e;
+    --red:#ef4444;
+    --blue:#2563eb;
+    --orange:#fb923c;
+    --card:#ffffff;
+    --ink:#172554;
+  }
+
+  *{
+    box-sizing:border-box;
+    -webkit-tap-highlight-color:transparent;
+  }
+
+  html,body{
+    margin:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    font-family:"Comic Sans MS","Comic Neue",Arial,sans-serif;
+    background:linear-gradient(180deg,var(--bg1),var(--bg2));
+    color:var(--ink);
+  }
+
+  .app{
+    width:100vw;
+    height:100dvh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    padding:8px;
+  }
+
+  .game-wrap{
+    width:min(100vw,520px);
+    height:min(100dvh,860px);
+    background:#e0f2fe;
+    border:4px solid #0f172a;
+    border-radius:24px;
+    overflow:hidden;
+    position:relative;
+    box-shadow:0 12px 30px rgba(0,0,0,.25);
+  }
+
+  header{
+    height:104px;
+    padding:8px 10px 6px;
+    background:linear-gradient(180deg,#ffffff,#dbeafe);
+    border-bottom:3px solid #0f172a;
+    position:relative;
+    z-index:4;
+  }
+
+  h1{
+    margin:0;
+    text-align:center;
+    font-size:clamp(19px,5vw,28px);
+    line-height:1.05;
+  }
+
+  .top-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:6px;
+    margin-top:6px;
+    font-weight:bold;
+    font-size:clamp(13px,3.2vw,16px);
+  }
+
+  .pill{
+    background:#fff;
+    border:2px solid #0f172a;
+    border-radius:999px;
+    padding:5px 8px;
+    box-shadow:0 3px 0 #94a3b8;
+    white-space:nowrap;
+  }
+
+  .question{
+    text-align:center;
+    margin-top:5px;
+    font-size:clamp(20px,6vw,30px);
+    font-weight:900;
+    color:#991b1b;
+  }
+
+  #gameCanvas{
+    width:100%;
+    height:calc(100% - 214px);
+    display:block;
+    background:#86efac;
+  }
+
+  .controls{
+    height:110px;
+    background:linear-gradient(180deg,#fef9c3,#fde68a);
+    border-top:3px solid #0f172a;
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:8px;
+    padding:8px;
+    position:relative;
+    z-index:5;
+  }
+
+  button{
+    font-family:inherit;
+    font-weight:900;
+    border:3px solid #111827;
+    border-radius:18px;
+    background:#fff;
+    box-shadow:0 5px 0 #94a3b8;
+    font-size:clamp(16px,4vw,22px);
+    cursor:pointer;
+  }
+
+  button:active{
+    transform:translateY(3px);
+    box-shadow:0 2px 0 #64748b;
+  }
+
+  .left-btn{background:#bfdbfe;}
+  .start-btn{background:#bbf7d0;}
+  .right-btn{background:#bfdbfe;}
+
+  .overlay{
+    position:absolute;
+    inset:0;
+    z-index:10;
+    background:rgba(219,234,254,.96);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:16px;
+    text-align:center;
+  }
+
+  .panel{
+    background:#fff;
+    border:4px solid #0f172a;
+    border-radius:26px;
+    padding:18px;
+    max-width:430px;
+    box-shadow:0 10px 0 #93c5fd;
+  }
+
+  .panel h2{
+    margin:0 0 8px;
+    font-size:clamp(25px,7vw,38px);
+  }
+
+  .panel p{
+    font-size:clamp(16px,4vw,20px);
+    line-height:1.35;
+    margin:8px 0;
+  }
+
+  .select-row{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:8px;
+    margin:12px 0;
+    flex-wrap:wrap;
+    font-size:18px;
+    font-weight:bold;
+  }
+
+  select{
+    font-family:inherit;
+    font-size:18px;
+    font-weight:bold;
+    border:3px solid #0f172a;
+    border-radius:12px;
+    padding:6px 10px;
+    background:#fefce8;
+  }
+
+  .big-btn{
+    padding:12px 20px;
+    background:#facc15;
+    font-size:22px;
+    margin-top:10px;
+  }
+
+  .hide{
+    display:none;
+  }
+
+  .credit{
+    position:absolute;
+    right:8px;
+    bottom:4px;
+    z-index:20;
+    font-size:11px;
+    font-weight:bold;
+    color:#334155;
+    background:rgba(255,255,255,.75);
+    border-radius:999px;
+    padding:2px 7px;
+  }
+
+  .feedback{
+    position:absolute;
+    left:50%;
+    top:122px;
+    transform:translateX(-50%);
+    z-index:7;
+    background:#fff;
+    border:3px solid #0f172a;
+    border-radius:18px;
+    padding:7px 14px;
+    font-size:clamp(17px,4vw,24px);
+    font-weight:900;
+    box-shadow:0 5px 0 #94a3b8;
+    opacity:0;
+    pointer-events:none;
+    transition:.18s;
+    text-align:center;
+    min-width:220px;
+  }
+
+  .feedback.show{
+    opacity:1;
+  }
+
+  @media (max-height:680px){
+    header{height:92px;}
+    .controls{height:96px;}
+    #gameCanvas{height:calc(100% - 188px);}
+    .question{font-size:22px;}
+  }
+</style>
+</head>
+
+<body>
+<div class="app">
+  <div class="game-wrap">
+
+    <header>
+      <h1>🏎️ Multiplication Racing Dash</h1>
+      <div class="top-row">
+        <div class="pill">Q: <span id="qNo">0</span>/12</div>
+        <div class="pill">✅ <span id="score">0</span></div>
+        <div class="pill">Place: <span id="place">1st</span></div>
+      </div>
+      <div class="question" id="questionText">Get ready!</div>
+    </header>
+
+    <div class="feedback" id="feedback">Good!</div>
+
+    <canvas id="gameCanvas"></canvas>
+
+    <div class="controls">
+      <button class="left-btn" id="leftBtn">⬅️ Left</button>
+      <button class="start-btn" id="mainBtn">Start</button>
+      <button class="right-btn" id="rightBtn">Right ➡️</button>
+    </div>
+
+    <div class="overlay" id="startOverlay">
+      <div class="panel">
+        <h2>🏁 Ready to Race?</h2>
+        <p>Move your racing car left or right.</p>
+        <p>Touch the cone with the correct multiplication answer.</p>
+        <p>Correct answers make you faster. Wrong answers help rival cars overtake!</p>
+
+        <div class="select-row">
+          <label for="tableSelect">Choose table:</label>
+          <select id="tableSelect">
+            <option value="mixed">Mixed</option>
+            <option value="2">×2</option>
+            <option value="3">×3</option>
+            <option value="4">×4</option>
+            <option value="5">×5</option>
+            <option value="6">×6</option>
+            <option value="7">×7</option>
+            <option value="8">×8</option>
+            <option value="9">×9</option>
+            <option value="10">×10</option>
+            <option value="11">×11</option>
+            <option value="12">×12</option>
+          </select>
+        </div>
+
+        <button class="big-btn" id="playBtn">Start Race 🚦</button>
+      </div>
+    </div>
+
+    <div class="overlay hide" id="endOverlay">
+      <div class="panel">
+        <h2 id="endTitle">🏆 Race Finished!</h2>
+        <p id="endMessage"></p>
+        <p id="endScore"></p>
+        <button class="big-btn" id="restartBtn">Race Again 🔁</button>
+      </div>
+    </div>
+
+    <div class="credit">Designed by Lim Kim Sze © 2026</div>
+  </div>
+</div>
+
+<script>
+(() => {
+  "use strict";
+
+  const canvas = document.getElementById("gameCanvas");
+  const ctx = canvas.getContext("2d");
+
+  const qNoEl = document.getElementById("qNo");
+  const scoreEl = document.getElementById("score");
+  const placeEl = document.getElementById("place");
+  const questionText = document.getElementById("questionText");
+  const feedback = document.getElementById("feedback");
+
+  const startOverlay = document.getElementById("startOverlay");
+  const endOverlay = document.getElementById("endOverlay");
+  const playBtn = document.getElementById("playBtn");
+  const restartBtn = document.getElementById("restartBtn");
+  const mainBtn = document.getElementById("mainBtn");
+  const leftBtn = document.getElementById("leftBtn");
+  const rightBtn = document.getElementById("rightBtn");
+  const tableSelect = document.getElementById("tableSelect");
+
+  const endTitle = document.getElementById("endTitle");
+  const endMessage = document.getElementById("endMessage");
+  const endScore = document.getElementById("endScore");
+
+  let W = 0;
+  let H = 0;
+  let laneX = [];
+  let roadOffset = 0;
+
+  let gameRunning = false;
+  let raceFinished = false;
+  let roundActive = false;
+
+  let questions = [];
+  let currentIndex = 0;
+  let score = 0;
+  let wrong = 0;
+
+  let playerLane = 1;
+  let playerTargetX = 0;
+  let playerX = 0;
+
+  let coneY = -120;
+  let cones = [];
+  let baseSpeed = 4.6;
+  let coneSpeed = baseSpeed;
+
+  let playerProgress = 0;
+  let rivalProgress = [0, 0, 0];
+  let crowdWave = 0;
+
+  let feedbackTimer = null;
+  let audioCtx = null;
+
+  function resizeCanvas(){
+    const rect = canvas.getBoundingClientRect();
+    const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+    canvas.width = Math.floor(rect.width * dpr);
+    canvas.height = Math.floor(rect.height * dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+
+    W = rect.width;
+    H = rect.height;
+
+    laneX = [W * 0.24, W * 0.50, W * 0.76];
+    playerTargetX = laneX[playerLane];
+    if(!playerX) playerX = playerTargetX;
+  }
+
+  window.addEventListener("resize", resizeCanvas);
+  resizeCanvas();
+
+  function unlockAudio(){
+    if(!audioCtx){
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if(audioCtx.state === "suspended"){
+      audioCtx.resume();
+    }
+  }
+
+  function beep(type){
+    if(!audioCtx) return;
+
+    const now = audioCtx.currentTime;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    if(type === "correct"){
+      osc.frequency.setValueAtTime(520, now);
+      osc.frequency.linearRampToValueAtTime(880, now + 0.12);
+      gain.gain.setValueAtTime(0.13, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+      osc.start(now);
+      osc.stop(now + 0.2);
+    }else if(type === "wrong"){
+      osc.frequency.setValueAtTime(170, now);
+      osc.frequency.linearRampToValueAtTime(100, now + 0.18);
+      gain.gain.setValueAtTime(0.16, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+      osc.start(now);
+      osc.stop(now + 0.27);
+    }else if(type === "finish"){
+      [440,554,659,880].forEach((f,i)=>{
+        const o = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        o.connect(g); g.connect(audioCtx.destination);
+        o.frequency.setValueAtTime(f, now + i * 0.12);
+        g.gain.setValueAtTime(0.12, now + i * 0.12);
+        g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.12 + 0.18);
+        o.start(now + i * 0.12);
+        o.stop(now + i * 0.12 + 0.2);
+      });
+    }else{
+      osc.frequency.setValueAtTime(320, now);
+      gain.gain.setValueAtTime(0.08, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+      osc.start(now);
+      osc.stop(now + 0.14);
+    }
+  }
+
+  function randInt(min,max){
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  function shuffle(arr){
+    for(let i=arr.length-1;i>0;i--){
+      const j = Math.floor(Math.random() * (i+1));
+      [arr[i],arr[j]] = [arr[j],arr[i]];
+    }
+    return arr;
+  }
+
+  function makeQuestions(){
+    const selected = tableSelect.value;
+    const list = [];
+
+    if(selected === "mixed"){
+      const used = new Set();
+      while(list.length < 12){
+        const a = randInt(2,12);
+        const b = randInt(2,12);
+        const key = `${a}x${b}`;
+        if(used.has(key)) continue;
+        used.add(key);
+        list.push({a,b,answer:a*b});
+      }
+    }else{
+      const a = Number(selected);
+      const multipliers = shuffle([1,2,3,4,5,6,7,8,9,10,11,12]);
+      multipliers.forEach(b => list.push({a,b,answer:a*b}));
+    }
+
+    return list.slice(0,12);
+  }
+
+  function makeWrongAnswers(correct){
+    const set = new Set();
+    while(set.size < 2){
+      let offset = randInt(-12,12);
+      if(offset === 0) offset = 3;
+      let wrongAns = correct + offset;
+
+      if(Math.random() < 0.35){
+        wrongAns = correct + randInt(-3,3) * randInt(2,4);
+      }
+
+      if(wrongAns > 0 && wrongAns !== correct){
+        set.add(wrongAns);
+      }
+    }
+    return [...set];
+  }
+
+  function startRace(){
+    unlockAudio();
+
+    questions = makeQuestions();
+    currentIndex = 0;
+    score = 0;
+    wrong = 0;
+    playerLane = 1;
+    playerX = laneX[playerLane];
+    playerTargetX = playerX;
+    playerProgress = 0;
+    rivalProgress = [0,0,0];
+    baseSpeed = 4.6;
+    coneSpeed = baseSpeed;
+    raceFinished = false;
+    gameRunning = true;
+
+    startOverlay.classList.add("hide");
+    endOverlay.classList.add("hide");
+    mainBtn.textContent = "Racing!";
+    updateTop();
+    nextRound();
+  }
+
+  function nextRound(){
+    if(currentIndex >= questions.length){
+      finishRace();
+      return;
+    }
+
+    roundActive = true;
+    const q = questions[currentIndex];
+    questionText.textContent = `${q.a} × ${q.b} = ?`;
+
+    const answers = shuffle([
+      {value:q.answer, correct:true},
+      ...makeWrongAnswers(q.answer).map(v => ({value:v, correct:false}))
+    ]);
+
+    cones = answers.map((ans,i)=>({
+      lane:i,
+      x:laneX[i],
+      y:-80,
+      value:ans.value,
+      correct:ans.correct,
+      hit:false
+    }));
+
+    coneY = -80;
+    coneSpeed = baseSpeed + score * 0.10;
+    updateTop();
+  }
+
+  function moveLeft(){
+    if(!gameRunning || raceFinished) return;
+    playerLane = Math.max(0, playerLane - 1);
+    playerTargetX = laneX[playerLane];
+    beep("move");
+  }
+
+  function moveRight(){
+    if(!gameRunning || raceFinished) return;
+    playerLane = Math.min(2, playerLane + 1);
+    playerTargetX = laneX[playerLane];
+    beep("move");
+  }
+
+  leftBtn.addEventListener("click", moveLeft);
+  rightBtn.addEventListener("click", moveRight);
+  playBtn.addEventListener("click", startRace);
+  restartBtn.addEventListener("click", startRace);
+  mainBtn.addEventListener("click", () => {
+    if(!gameRunning || raceFinished) startRace();
+  });
+
+  window.addEventListener("keydown", e => {
+    if(e.key === "ArrowLeft") moveLeft();
+    if(e.key === "ArrowRight") moveRight();
+    if(e.key === " " && (!gameRunning || raceFinished)) startRace();
+  });
+
+  let touchStartX = null;
+  canvas.addEventListener("touchstart", e => {
+    touchStartX = e.touches[0].clientX;
+  }, {passive:true});
+
+  canvas.addEventListener("touchend", e => {
+    if(touchStartX === null) return;
+    const endX = e.changedTouches[0].clientX;
+    const diff = endX - touchStartX;
+    if(diff < -25) moveLeft();
+    if(diff > 25) moveRight();
+    touchStartX = null;
+  }, {passive:true});
+
+  function updateTop(){
+    qNoEl.textContent = Math.min(currentIndex + 1, 12);
+    scoreEl.textContent = score;
+    placeEl.textContent = getPlaceText();
+  }
+
+  function getPlaceNumber(){
+    if(wrong === 0) return 1;
+    if(wrong <= 2) return 2;
+    if(wrong <= 4) return 3;
+    return 4;
+  }
+
+  function getPlaceText(){
+    const p = getPlaceNumber();
+    if(p === 1) return "1st";
+    if(p === 2) return "2nd";
+    if(p === 3) return "3rd";
+    return "4th";
+  }
+
+  function showFeedback(text, good){
+    feedback.textContent = text;
+    feedback.style.color = good ? "#15803d" : "#b91c1c";
+    feedback.classList.add("show");
+    clearTimeout(feedbackTimer);
+    feedbackTimer = setTimeout(()=>feedback.classList.remove("show"), 900);
+  }
+
+  function checkHit(){
+    if(!roundActive) return;
+
+    const hitY = H - 110;
+
+    if(coneY >= hitY){
+      roundActive = false;
+
+      const chosen = cones.find(c => c.lane === playerLane);
+      const q = questions[currentIndex];
+
+      if(chosen && chosen.correct){
+        score++;
+        playerProgress += 1.15;
+        rivalProgress = rivalProgress.map(v => v + Math.random() * 0.55);
+        baseSpeed += 0.18;
+        showFeedback("✅ Correct! Speed boost!", true);
+        beep("correct");
+      }else{
+        wrong++;
+        playerProgress += 0.42;
+        rivalProgress = rivalProgress.map(v => v + 0.75 + Math.random() * 0.75);
+        showFeedback(`❌ Oops! ${q.a} × ${q.b} = ${q.answer}`, false);
+        beep("wrong");
+      }
+
+      currentIndex++;
+      updateTop();
+
+      setTimeout(() => {
+        if(gameRunning && !raceFinished){
+          nextRound();
+        }
+      }, 850);
+    }
+  }
+
+  function finishRace(){
+    gameRunning = false;
+    raceFinished = true;
+    questionText.textContent = "Finish line!";
+    mainBtn.textContent = "Restart";
+    beep("finish");
+
+    const place = getPlaceNumber();
+    let title = "🏆 Race Finished!";
+    let msg = "";
+
+    if(place === 1){
+      title = "🏆 Champion!";
+      msg = "Amazing! You touched the correct cones and finished in 1st place!";
+    }else if(place === 2){
+      title = "🥈 2nd Place!";
+      msg = "Good race! A few mistakes let one rival car overtake you.";
+    }else if(place === 3){
+      title = "🥉 3rd Place!";
+      msg = "Keep practising! More correct cones will help your car go faster.";
+    }else{
+      title = "🏁 Race Complete!";
+      msg = "You finished the race, but too many wrong cones slowed your car down.";
+    }
+
+    endTitle.textContent = title;
+    endMessage.textContent = msg;
+    endScore.textContent = `Score: ${score}/12 correct. Final placing: ${getPlaceText()}.`;
+
+    setTimeout(() => {
+      endOverlay.classList.remove("hide");
+    }, 1300);
+  }
+
+  function drawSky(){
+    ctx.fillStyle = "#86efac";
+    ctx.fillRect(0,0,W,H);
+
+    ctx.fillStyle = "#bbf7d0";
+    for(let i=0;i<8;i++){
+      const x = (i * 90 + (roadOffset * 0.25)) % (W + 120) - 60;
+      ctx.beginPath();
+      ctx.arc(x, 38 + (i%2)*20, 22, 0, Math.PI*2);
+      ctx.fill();
+    }
+
+    drawCrowd();
+  }
+
+  function drawCrowd(){
+    const crowdTop = 0;
+    const rows = 2;
+    crowdWave += 0.08;
+
+    for(let r=0;r<rows;r++){
+      for(let i=0;i<14;i++){
+        const x = i * (W/13) + (r%2)*10;
+        const y = crowdTop + 16 + r*22 + Math.sin(crowdWave+i)*3;
+        ctx.fillStyle = ["#ef4444","#f97316","#eab308","#22c55e","#3b82f6","#a855f7"][i%6];
+        ctx.beginPath();
+        ctx.arc(x,y,6,0,Math.PI*2);
+        ctx.fill();
+
+        ctx.strokeStyle = "#111827";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(x-5,y+8);
+        ctx.lineTo(x+5,y+8);
+        ctx.stroke();
+      }
+    }
+
+    ctx.fillStyle = "#fff";
+    ctx.font = "bold 14px Comic Sans MS";
+    ctx.textAlign = "center";
+    ctx.fillText("🎉 Go! Go! Go! 🎉", W/2, 55);
+  }
+
+  function drawRoad(){
+    const roadW = W * 0.76;
+    const roadX = (W - roadW) / 2;
+
+    ctx.fillStyle = "#334155";
+    ctx.fillRect(roadX, 68, roadW, H);
+
+    ctx.fillStyle = "#475569";
+    ctx.fillRect(roadX + 8, 68, roadW - 16, H);
+
+    ctx.strokeStyle = "#fef08a";
+    ctx.lineWidth = 4;
+    ctx.setLineDash([22,20]);
+
+    for(let i=1;i<3;i++){
+      const x = roadX + roadW * i / 3;
+      ctx.beginPath();
+      ctx.moveTo(x, 68 - (roadOffset % 42));
+      ctx.lineTo(x, H);
+      ctx.stroke();
+    }
+    ctx.setLineDash([]);
+
+    ctx.fillStyle = "#f8fafc";
+    ctx.fillRect(roadX, 68, 5, H);
+    ctx.fillRect(roadX + roadW - 5, 68, 5, H);
+
+    if(currentIndex >= questions.length - 1 || raceFinished){
+      drawFinishLine(roadX, roadW);
+    }
+  }
+
+  function drawFinishLine(roadX, roadW){
+    const y = 92;
+    const size = 16;
+    for(let row=0; row<2; row++){
+      for(let col=0; col<Math.ceil(roadW/size); col++){
+        ctx.fillStyle = (row + col) % 2 === 0 ? "#fff" : "#111827";
+        ctx.fillRect(roadX + col*size, y + row*size, size, size);
+      }
+    }
+
+    ctx.fillStyle = "#fff";
+    ctx.strokeStyle = "#111827";
+    ctx.lineWidth = 3;
+    ctx.font = "bold 18px Comic Sans MS";
+    ctx.textAlign = "center";
+    ctx.strokeText("FINISH", W/2, y - 8);
+    ctx.fillText("FINISH", W/2, y - 8);
+  }
+
+  function drawCones(){
+    cones.forEach(c => {
+      const x = laneX[c.lane];
+      const y = coneY;
+
+      ctx.save();
+      ctx.translate(x,y);
+
+      ctx.fillStyle = "#fb923c";
+      ctx.beginPath();
+      ctx.moveTo(0,-30);
+      ctx.lineTo(-28,28);
+      ctx.lineTo(28,28);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle = "#fff";
+      ctx.fillRect(-18,-2,36,8);
+      ctx.fillRect(-24,18,48,8);
+
+      ctx.strokeStyle = "#9a3412";
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      ctx.fillStyle = "#111827";
+      ctx.font = "bold 22px Comic Sans MS";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(c.value,0,4);
+
+      ctx.restore();
+    });
+  }
+
+  function drawPlayerCar(){
+    playerX += (playerTargetX - playerX) * 0.25;
+
+    const y = H - 58;
+    const x = playerX;
+
+    ctx.save();
+    ctx.translate(x,y);
+
+    ctx.fillStyle = "#ef4444";
+    roundRect(ctx,-34,-28,68,48,16);
+    ctx.fill();
+
+    ctx.fillStyle = "#facc15";
+    roundRect(ctx,-20,-44,40,26,10);
+    ctx.fill();
+
+    ctx.fillStyle = "#dbeafe";
+    roundRect(ctx,-14,-39,28,16,7);
+    ctx.fill();
+
+    ctx.fillStyle = "#111827";
+    ctx.beginPath(); ctx.arc(-22,20,9,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(22,20,9,0,Math.PI*2); ctx.fill();
+
+    ctx.fillStyle = "#fde047";
+    ctx.beginPath(); ctx.arc(-22,-22,5,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(22,-22,5,0,Math.PI*2); ctx.fill();
+
+    ctx.fillStyle = "#fff";
+    ctx.font = "bold 15px Comic Sans MS";
+    ctx.textAlign = "center";
+    ctx.fillText("YOU",0,1);
+
+    ctx.restore();
+  }
+
+  function drawRivals(){
+    const roadW = W * 0.76;
+    const roadX = (W - roadW) / 2;
+
+    const names = ["A","B","C"];
+    const colors = ["#2563eb","#22c55e","#a855f7"];
+
+    rivalProgress.forEach((p,i) => {
+      const x = roadX - 22 + i * 22;
+      const y = H - 90 - p * 20;
+
+      ctx.save();
+      ctx.translate(x,y);
+
+      ctx.fillStyle = colors[i];
+      roundRect(ctx,-12,-18,24,34,7);
+      ctx.fill();
+
+      ctx.fillStyle = "#111827";
+      ctx.beginPath(); ctx.arc(-8,15,4,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(8,15,4,0,Math.PI*2); ctx.fill();
+
+      ctx.fillStyle = "#fff";
+      ctx.font = "bold 10px Comic Sans MS";
+      ctx.textAlign = "center";
+      ctx.fillText(names[i],0,0);
+
+      ctx.restore();
+    });
+  }
+
+  function drawProgressPanel(){
+    const x = W - 88;
+    const y = 76;
+    const h = H - 160;
+
+    ctx.fillStyle = "rgba(255,255,255,.88)";
+    ctx.strokeStyle = "#111827";
+    ctx.lineWidth = 2;
+    roundRect(ctx,x,y,74,h,14);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = "#111827";
+    ctx.font = "bold 12px Comic Sans MS";
+    ctx.textAlign = "center";
+    ctx.fillText("Race", x+37, y+18);
+
+    const maxP = 14;
+    const py = y + h - 24 - Math.min(maxP, playerProgress) / maxP * (h - 55);
+
+    ctx.fillStyle = "#ef4444";
+    ctx.beginPath();
+    ctx.arc(x+37, py, 9, 0, Math.PI*2);
+    ctx.fill();
+
+    rivalProgress.forEach((p,i)=>{
+      const ry = y + h - 24 - Math.min(maxP, p) / maxP * (h - 55);
+      ctx.fillStyle = ["#2563eb","#22c55e","#a855f7"][i];
+      ctx.beginPath();
+      ctx.arc(x+18+i*18, ry, 5, 0, Math.PI*2);
+      ctx.fill();
+    });
+
+    ctx.strokeStyle = "#111827";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(x+10,y+42);
+    ctx.lineTo(x+64,y+42);
+    ctx.stroke();
+  }
+
+  function roundRect(ctx,x,y,w,h,r){
+    const rr = Math.min(r,w/2,h/2);
+    ctx.beginPath();
+    ctx.moveTo(x+rr,y);
+    ctx.lineTo(x+w-rr,y);
+    ctx.quadraticCurveTo(x+w,y,x+w,y+rr);
+    ctx.lineTo(x+w,y+h-rr);
+    ctx.quadraticCurveTo(x+w,y+h,x+w-rr,y+h);
+    ctx.lineTo(x+rr,y+h);
+    ctx.quadraticCurveTo(x,y+h,x,y+h-rr);
+    ctx.lineTo(x,y+rr);
+    ctx.quadraticCurveTo(x,y,x+rr,y);
+    ctx.closePath();
+  }
+
+  function drawIdleMessage(){
+    ctx.fillStyle = "rgba(255,255,255,.9)";
+    ctx.strokeStyle = "#111827";
+    ctx.lineWidth = 3;
+    roundRect(ctx,W*0.12,H*0.34,W*0.76,110,22);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = "#172554";
+    ctx.font = "bold 22px Comic Sans MS";
+    ctx.textAlign = "center";
+    ctx.fillText("Touch the correct cone!", W/2, H*0.34 + 42);
+
+    ctx.font = "bold 16px Comic Sans MS";
+    ctx.fillText("Use ◀ ▶ buttons or swipe.", W/2, H*0.34 + 76);
+  }
+
+  function loop(){
+    ctx.clearRect(0,0,W,H);
+
+    drawSky();
+    drawRoad();
+    drawRivals();
+    drawProgressPanel();
+
+    roadOffset += gameRunning ? coneSpeed : 1.2;
+
+    if(gameRunning && roundActive){
+      coneY += coneSpeed;
+      drawCones();
+      checkHit();
+    }
+
+    drawPlayerCar();
+
+    if(!gameRunning && !raceFinished){
+      drawIdleMessage();
+    }
+
+    requestAnimationFrame(loop);
+  }
+
+  loop();
+})();
+</script>
+</body>
+  </html>
